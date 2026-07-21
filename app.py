@@ -16,7 +16,8 @@ st.set_page_config(
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
-ADM1_PATH = DATA_DIR / "kenya_adm1_county_year.gpkg"
+ADM1_CSV_PATH = DATA_DIR / "kenya_adm1_county_year.csv"
+BOUNDARIES_PATH = DATA_DIR / "kenya_county_boundaries.geojson"
 ADM0_PATH = DATA_DIR / "kenya_adm0_national_year.csv"
 VERIFY_PATH = DATA_DIR / "verification_totals.csv"
 
@@ -30,15 +31,54 @@ VARIABLES = {
 
 @st.cache_data(show_spinner=False)
 def load_data():
-    adm1 = gpd.read_file(ADM1_PATH).to_crs("EPSG:4326")
+    # Read county boundaries separately
+    county_boundaries = gpd.read_file(
+        BOUNDARIES_PATH
+    ).to_crs("EPSG:4326")
+
+    # Read county-year panel
+    county_panel = pd.read_csv(ADM1_CSV_PATH)
+
+    # Avoid duplicate county-name columns during the merge
+    county_panel = county_panel.drop(
+        columns=["NAME_1"],
+        errors="ignore"
+    )
+
+    # Merge geometry with the county-year panel
+    adm1 = county_boundaries[
+        ["GID_1", "NAME_1", "geometry"]
+    ].drop_duplicates("GID_1").merge(
+        county_panel,
+        on="GID_1",
+        how="left",
+        validate="one_to_many"
+    )
+
+    adm1 = gpd.GeoDataFrame(
+        adm1,
+        geometry="geometry",
+        crs=county_boundaries.crs
+    )
+
     adm0 = pd.read_csv(ADM0_PATH)
     verification = pd.read_csv(VERIFY_PATH)
 
-    adm1["year"] = pd.to_numeric(adm1["year"], errors="coerce").astype("Int64")
-    adm0["year"] = pd.to_numeric(adm0["year"], errors="coerce").astype("Int64")
-    verification["year"] = pd.to_numeric(
-        verification["year"], errors="coerce"
+    adm1["year"] = pd.to_numeric(
+        adm1["year"],
+        errors="coerce"
     ).astype("Int64")
+
+    adm0["year"] = pd.to_numeric(
+        adm0["year"],
+        errors="coerce"
+    ).astype("Int64")
+
+    verification["year"] = pd.to_numeric(
+        verification["year"],
+        errors="coerce"
+    ).astype("Int64")
+
     return adm1, adm0, verification
 
 
