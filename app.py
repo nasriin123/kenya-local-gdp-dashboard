@@ -201,8 +201,8 @@ if not missing.empty:
 
 fig_map.update_layout(
     mapbox_style="carto-positron",
-    mapbox_center={"lat": 0.4, "lon": 37.8},
-    mapbox_zoom=4.6,
+    mapbox_center={"lat": 0.2, "lon": 37.9},
+    mapbox_zoom=5.4,
     margin=dict(l=0, r=0, t=0, b=0),
     height=630,
     legend=dict(orientation="h", yanchor="bottom", y=0.01, xanchor="left", x=0.01),
