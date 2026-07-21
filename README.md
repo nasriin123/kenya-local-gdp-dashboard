@@ -19,11 +19,11 @@ streamlit run app.py
 
 ## Files
 
-- `data/kenya_adm1_county_year.gpkg`: county-year panel with geometry
-- `data/kenya_adm1_county_year.csv`: same panel without geometry
+- `data/kenya_adm1_county_year.csv`: county-year GDP and population panel
+- `data/kenya_county_boundaries.geojson`: Kenya ADM1 county boundaries
 - `data/kenya_adm0_national_year.csv`: national annual series
 - `data/verification_totals.csv`: aggregation verification
-- `data/kenya_grid_year_with_county.*`: optional grid-level outputs
+- `data/kenya_grid_year_with_county.csv`: optional grid-level output
 
 ## Deployment
 
